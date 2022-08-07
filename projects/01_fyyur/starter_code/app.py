@@ -2,9 +2,10 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-import json
+import json, sys
 import dateutil.parser
 import babel
+from flask_migrate import Migrate
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -20,8 +21,8 @@ app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
-
-# TODO: connect to a local postgresql database
+migrate = Migrate(app, db)
+# TODO: connect to a local postgresql database --> DONE
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -38,6 +39,11 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    # missing fields from the show_venue.html fields
+    genre = db.Column(db.String(500), nullable=False)
+    website = db.Column(db.String(120), nullable=True)
+    seeking_talent = db.Column(db.String, )
+    seeking_description = db.Column(db.String)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -56,7 +62,12 @@ class Artist(db.Model):
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
-
+class Show(db.Model):
+  __tablename__ = 'Show'
+  
+  id= db.Column(db.Integer, primary_key=True)
+  # Relatinship with artist and venue table with Date of show 
+  
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
@@ -128,6 +139,7 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
+  
   # TODO: replace with real venue data from the venues table, using venue_id
   data1={
     "id": 1,
@@ -219,6 +231,7 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
+  
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
 
